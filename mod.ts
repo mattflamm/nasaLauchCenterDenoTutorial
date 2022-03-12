@@ -1,7 +1,7 @@
 import {Application, send} from "https://deno.land/x/oak@v10.4.0/mod.ts";
 import * as log from "https://deno.land/std@0.129.0/log/mod.ts";
 import { join } from "https://deno.land/std@0.128.0/path/mod.ts";
-import {getArt} from "./utilities.ts";
+import api from "./api.ts"
 
 
 const app = new Application();
@@ -24,6 +24,8 @@ app.use(async (context, next) => {
 
 });
 
+app.use(  api.routes() );
+
 app.use(async (context) => {
   const filePath = context.request.url.pathname ? context.request.url.pathname : "/index.html";
   const fileWhiteList = [
@@ -32,6 +34,7 @@ app.use(async (context) => {
     "/stylesheets/style.css",
     "/images/favicon.png"
   ];
+  
   if (fileWhiteList.includes(filePath)) {
     await send(context, filePath, {
       root: join(Deno.cwd(), "public")
@@ -40,10 +43,6 @@ app.use(async (context) => {
     context.throw(404, "resource not found");
   }
   
-});
-
-app.use((context) => {
-  context.response.body = getArt;
 });
 
 
